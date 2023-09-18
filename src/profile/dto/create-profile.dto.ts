@@ -11,4 +11,6 @@ export class CreateProfileDto {
     @IsString()
     @IsNotEmpty()
     password: string
+
+    
 }

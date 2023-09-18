@@ -9,6 +9,7 @@ describe('ProductsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProductsController],
       providers: [ProductsService],
+      
     }).compile();
 
     controller = module.get<ProductsController>(ProductsController);
