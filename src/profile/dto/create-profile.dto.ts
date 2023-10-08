@@ -1,16 +1,20 @@
-import { IsString ,IsNotEmpty } from 'class-validator';
+import { IsString , IsOptional} from 'class-validator';
+
+
+
 
 export class CreateProfileDto {
-
-
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     username: string
 
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     password: string
 
+
+  @IsOptional()
+  clientId?: string; 
     
 }

@@ -4,8 +4,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Profile } from '../entities/profile.entity';
-import { profile } from 'console';
 import { isUUID } from 'class-validator';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class ProfileService {
@@ -28,8 +28,13 @@ try {
 
   }
 
-  findAll() {
-    return this.profileRepository.find({});
+  findAll(PaginationDto) {
+    const {limit=20, offset=0} = PaginationDto
+    return this.profileRepository.find({
+      take:limit,
+      skip:offset,
+      //relaciones 
+    });
   }
 
   async findOne(term: string) {

@@ -1,7 +1,8 @@
-import { Controller, Get, ParseUUIDPipe, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, ParseUUIDPipe, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('profile')
 export class ProfileController {
@@ -13,17 +14,17 @@ export class ProfileController {
   }
 
   @Get()
-  findAll() {
-    return this.profileService.findAll();
+  findAll(@Query() PaginationDto: PaginationDto) {
+    return this.profileService.findAll(PaginationDto);
   }
 
-  @Get(':term')
-  findOne(@Param('term') term: string) {
-    return this.profileService.findOne(term);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.profileService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProfileDto: UpdateProfileDto) {
+  update(@Param('id') id: string , @Body() updateProfileDto: UpdateProfileDto) {
     return this.profileService.update(id, updateProfileDto);
   }
 

@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Client } from '../entities/client.entity';
 import { validate as isUUID } from 'uuid'
+import { Profile } from 'src/entities/profile.entity';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class ClientsService {
@@ -13,25 +15,53 @@ export class ClientsService {
 
   constructor(
     @InjectRepository(Client)
-    private readonly clientRepository: Repository<Client>
+    private readonly clientRepository: Repository<Client>,
+   
+    @InjectRepository(Profile)
+    private readonly profileRepository: Repository<Profile>
 
   ) { }
 
   async create(createClientDto: CreateClientDto) {
     try {
-      const client = this.clientRepository.create(createClientDto)
-      await this.clientRepository.save(client)
-      return client
-
-
+      const { profiles = [], ...clientDetail } = createClientDto;
+  
+      
+      const client = this.clientRepository.create({
+        ...clientDetail,
+        profiles: [],
+      });
+  
+      
+      await this.clientRepository.save(client);
+  
+      // Asigna los perfiles al cliente después de que se haya creado
+      client.profiles = profiles.map(profileDto => {
+        const newProfile = new Profile();
+        newProfile.username = profileDto.username;
+        newProfile.password = profileDto.password;
+        // Excluye la propiedad 'client' para evitar la referencia circular
+        delete newProfile.client;
+        return newProfile;
+      });
+  
+      // Guarda el cliente actualizado con los perfiles en la base de datos
+      await this.clientRepository.save(client);
+  
+      return client;
     } catch (error) {
-      this.differentsEerrors(error)
+      this.differentsEerrors(error);
     }
-
   }
 
-  findAll() {
-    return this.clientRepository.find({});
+
+  findAll(PaginationDto) {
+    const {limit=12, offset=0} = PaginationDto
+    return this.clientRepository.find({
+      take:limit,
+      skip:offset,
+      //relaciones 
+    });
   }
 
   async findOne(term: string) {
@@ -59,8 +89,10 @@ export class ClientsService {
 
     const client = await this.clientRepository.preload({
       id: id,
-      ...updateClientDto
-    })
+      ...updateClientDto,
+      profiles: [], 
+    });
+
     if (!client) throw new NotFoundException(`client with ${id} not found`)
  try {
 await this.clientRepository.save(client)
@@ -74,7 +106,9 @@ return client
   async remove(id: string) {
 
     const clientid = await this.findOne(id);
-    await this.clientRepository.remove(clientid)
+    clientid.profiles = [];
+
+    await this.clientRepository.remove(clientid);
     return clientid
   }
 

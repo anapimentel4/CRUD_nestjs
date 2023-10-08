@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class Product {
@@ -8,13 +8,11 @@ export class Product {
   @Column('text')
   productName: string;
 
-  @Column()
-  sku: number;
+  @Column('text') 
+  sku: string;
 
   @Column('float')
   price: number;
 
-
-
-
+ 
 }
